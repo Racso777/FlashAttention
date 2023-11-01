@@ -48,6 +48,17 @@ Despite necessitating additional FLOPs for the purpose of recomputation, the alg
 
 ![图片_20231031205015](https://github.com/Racso777/FlashAttention/assets/111296013/3a4e24df-f3fc-4dce-bad7-0e3036aea559)
 
+## Block-Sparse FlashAttention Algorithm
+
+Given a predefined block sparsity mask M ∈ {0, 1}, we can easily adapt the flash attention algorithm to only compute the nonzero blocks of the attention matrix. The algorithm is identical, except we skip zero blocks. 
+
+## Methods
+This paper follows the MLPerf 1.1 guidelines to train BERT-large, utilizing the LAMB optimizer, a 3.75e-3 learning rate, a 448 batch size, and capping at 7100 steps. Training ceases when validation accuracy for masked language modeling hits 72.0%, with the run-time recorded. The training leverages FP16 precision with Apex AMP at O2 optimization.
+The results are benchmarked against Nvidia’s reported training speed for MLPerf 1.1, ensuring a consistent train/validation data split and evaluating against the same 10,000 validation examples. The model is trained on eight A100-80GB GPUs, with run times ranging from 16 to 19 minutes over 10 runs.
+
+For GPT-2, the paper utilizes standard implementations from Huggingface and Nvidia’s Megatron-LM, adhering to Megatron-LM’s training recipe. The model is trained on eight A100-40GB GPUs, with an effective batch size of 512, employing gradient accumulation to manage GPU memory constraints. Authors use AdamW optimizer, differing learning rates for GPT-2 small and medium, and a weight decay of 0.1, maintaining consistent hyperparameters across 400K steps and implementing mixed-precision training.
+The dataset used is Openwebtext, processed with the GPT-2 BPE tokenizer. A random 0.5% of the dataset is set aside for validation, ensuring all models are evaluated on the same set. Training times for GPT-2 small range from 2.7 to 9.5 days, while GPT-2 medium takes between 6.9 to 21.0 days.
+
 ## Results
 Training Speed: FlashAttention surpasses the MLPerf 1.1 speed record for BERT by 15%, triples GPT-2's speed compared to HuggingFace, and is 1.8 times faster than Megatron. It also accelerates the Long Range Arena (LRA) benchmark by 2.4 times.
 
@@ -55,10 +66,7 @@ Quality: FlashAttention enhances Transformers' capability to process longer sequ
 
 Benchmarking Attention: FlashAttention's memory footprint scales linearly with sequence length, performing up to three times faster than standard attention for sequences up to 2K. Block-sparse FlashAttention’s runtime also scales linearly and outperforms all existing approximate attention methods.
 
-**Discussion Question: Are there specific applications or domains where you think LoRA might be less suitable, and why?**
-
-# Critical Analysis
-**Advantages:**
+**Discussion Question: ?**
 
 **Limitations:**
 CUDA Compilation: We need a new CUDA kernel for each variant of attention, requiring low-level programming and extensive engineering, which may not be consistent across GPU architectures. A high-level language for writing attention algorithms, translatable to IO-aware CUDA implementations, is needed.
@@ -75,5 +83,14 @@ The test dataset that we could use and train is in this file: https://github.com
 Please refer to https://github.com/Dao-AILab/flash-attention/tree/main for the official demonstration and the source code of FlashAttention.
 
 # More information on FlashAttention
+Flashier Attention blog: https://www.adept.ai/blog/flashier-attention 
+
+Tri Dao’s talk: https: //www.youtube.com/watch?v=gMOAud7hZg4
+
+Tri Dao’s talk: https: //www.youtube.com/watch?v=FThvfkXWqtE
+
+ELI5: FlashAttention: https://gordicaleksa.medium.com/eli5-flash-attention-5c44017022ad
+
+Huggingface: https://huggingface.co/docs/text-generation-inference/conceptual/flash_attention
 
 # Reference
