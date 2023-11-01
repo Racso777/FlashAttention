@@ -67,11 +67,11 @@ The dataset used is Openwebtext, processed with the GPT-2 BPE tokenizer. A rando
 Training Speed: FlashAttention surpasses the MLPerf 1.1 speed record for BERT by 15%, triples GPT-2's speed compared to HuggingFace, and is 1.8 times faster than Megatron. It also accelerates the Long Range Arena (LRA) benchmark by 2.4 times.
 
 ![图片_20231101033530](https://github.com/Racso777/FlashAttention/assets/111296013/64442d71-3f47-4b99-b8ae-28b3923c9057)
-
+![图片_20231101033533](https://github.com/Racso777/FlashAttention/assets/111296013/0c4d0677-7811-46d8-b9dd-8c2e668cd09a)
 
 Quality: FlashAttention enhances Transformers' capability to process longer sequences, improving their quality. It trains GPT-2 with a 4K context length quicker and more effectively than Megatron does with a 1K context length, achieving a 0.7 improvement in perplexity. Longer sequences yield a 6.4 point improvement in long-document classification tasks. FlashAttention also excels in challenging tasks like Path-X (16K sequence length) and block-sparse FlashAttention shows promise in tasks like Path-256 (64K sequence length).
 
-![图片_20231101033533](https://github.com/Racso777/FlashAttention/assets/111296013/0c4d0677-7811-46d8-b9dd-8c2e668cd09a)
+![图片_20231101040851](https://github.com/Racso777/FlashAttention/assets/111296013/b6ccb9e2-3c09-41dc-8195-8127832a4a75)
 
 
 Benchmarking Attention: FlashAttention's memory footprint scales linearly with sequence length, performing up to three times faster than standard attention for sequences up to 2K. Block-sparse FlashAttention’s runtime also scales linearly and outperforms all existing approximate attention methods.
