@@ -6,6 +6,8 @@ Dao, T., Fu, D. Y., Ermon, S., Rudra, A., & Ré, C. (2022). FlashAttention: Fast
 # Introduction
 Transformer models have become the predominant architecture in fields like natural language processing and image classification, continually increasing in both size and depth. However, extending them to handle longer contextual information remains a challenge due to the quadratic time and memory complexity of the self-attention module, which is central to their structure.
 
+Various methods for approximate attention aim to cut computational and memory demands, ranging from sparse and low-rank approximations, to their hybrids. Although they manage to bring computation down to a near-linear relationship with sequence length, many don't achieve actual runtime improvements over standard attention, limiting their widespread adoption. The primary issue is their focus on reducing floating-point operations (FLOPs) rather than enhancing overall efficiency.
+
 The utilization of GPUs for machine learning training is a common practice, given their capability to handle parallel computations efficiently. This leads to an intriguing question: 
 
 ## In the context of GPU-accelerated training, where exactly are all the matrices stored, and where does the training of the model actually take place?
