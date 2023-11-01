@@ -54,7 +54,7 @@ Despite necessitating additional FLOPs for the purpose of recomputation, the alg
 
 ## Block-Sparse FlashAttention Algorithm
 
-Given a predefined block sparsity mask M ∈ {0, 1}, we can easily adapt the flash attention algorithm to only compute the nonzero blocks of the attention matrix. The algorithm is identical, except we skip zero blocks. 
+Given a predefined block sparsity mask M ∈ {0, 1}, we can easily adapt the flash attention algorithm to only compute the nonzero blocks of the attention matrix. The algorithm is identical, except we skip zero blocks. For large sequence lengths 𝑁, 𝑠 is often set to 𝑁^−1/2 or 𝑁^−1 log 𝑁, resultingin Θ(𝑁√𝑁) or Θ(𝑁 log 𝑁) IO complexity.
 
 ## Methods
 This paper follows the MLPerf 1.1 guidelines to train BERT-large, utilizing the LAMB optimizer, a 3.75e-3 learning rate, a 448 batch size, and capping at 7100 steps. Training ceases when validation accuracy for masked language modeling hits 72.0%, with the run-time recorded. The training leverages FP16 precision with Apex AMP at O2 optimization.
