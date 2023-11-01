@@ -36,7 +36,8 @@ Solution:
 1. Implement attention computation in blocks, using multiple passes for incremental softmax reduction (tiling).
 2. Preserve the softmax normalization factor from the forward pass to expedite on-chip attention recalculation in the backward pass, avoiding the slower retrieval of the intermediate attention matrix from HBM.
 
-![图片_20231031205400](https://github.com/Racso777/FlashAttention/assets/111296013/242ba47d-cf27-4b6e-b732-0f92f72d46df)
+![图片_20231031235608](https://github.com/Racso777/FlashAttention/assets/111296013/4da307c7-b482-4cb7-a1c7-73944b2be436)
+
 
 Despite necessitating additional FLOPs for the purpose of recomputation, the algorithm not only executes more swiftly—achieving up to a 7.6x speedup on GPT-2—but also consumes less memory, with its usage scaling linearly with sequence length. This efficiency is attributed to the substantially diminished need for accessing High Bandwidth Memory (HBM).
 
@@ -65,12 +66,17 @@ The dataset used is Openwebtext, processed with the GPT-2 BPE tokenizer. A rando
 ## Results
 Training Speed: FlashAttention surpasses the MLPerf 1.1 speed record for BERT by 15%, triples GPT-2's speed compared to HuggingFace, and is 1.8 times faster than Megatron. It also accelerates the Long Range Arena (LRA) benchmark by 2.4 times.
 
+![图片_20231101033530](https://github.com/Racso777/FlashAttention/assets/111296013/64442d71-3f47-4b99-b8ae-28b3923c9057)
+
+
 Quality: FlashAttention enhances Transformers' capability to process longer sequences, improving their quality. It trains GPT-2 with a 4K context length quicker and more effectively than Megatron does with a 1K context length, achieving a 0.7 improvement in perplexity. Longer sequences yield a 6.4 point improvement in long-document classification tasks. FlashAttention also excels in challenging tasks like Path-X (16K sequence length) and block-sparse FlashAttention shows promise in tasks like Path-256 (64K sequence length).
+
+![图片_20231101033533](https://github.com/Racso777/FlashAttention/assets/111296013/0c4d0677-7811-46d8-b9dd-8c2e668cd09a)
+
 
 Benchmarking Attention: FlashAttention's memory footprint scales linearly with sequence length, performing up to three times faster than standard attention for sequences up to 2K. Block-sparse FlashAttention’s runtime also scales linearly and outperforms all existing approximate attention methods.
 
-![图片_20231101024449](https://github.com/Racso777/FlashAttention/assets/111296013/7587d816-458f-40c2-b1d5-a2834cec51fd)
-
+![图片_20231101033537](https://github.com/Racso777/FlashAttention/assets/111296013/f5696613-312e-4519-b68c-a90bcfc5fc1a)
 
 **Discussion Question: FlashAttention appears to be a versatile and valuable tool, especially when implemented on GPU-supported models, which encompasses a majority of current models. What potential drawbacks might be associated with this model?**
 
