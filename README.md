@@ -8,7 +8,7 @@ Transformer models have become the predominant architecture in fields like natur
 
 The utilization of GPUs for machine learning training is a common practice, given their capability to handle parallel computations efficiently. This leads to an intriguing question: 
 
-**In the context of GPU-accelerated training, where exactly are all the matrices stored, and where does the training of the model actually take place?**
+### In the context of GPU-accelerated training, where exactly are all the matrices stored, and where does the training of the model actually take place?
 
 ## Key Idea
 ### I/O in GPU
@@ -78,7 +78,7 @@ Benchmarking Attention: FlashAttention's memory footprint scales linearly with s
 
 ![图片_20231101033537](https://github.com/Racso777/FlashAttention/assets/111296013/f5696613-312e-4519-b68c-a90bcfc5fc1a)
 
-**Discussion Question: FlashAttention appears to be a versatile and valuable tool, especially when implemented on GPU-supported models, which encompasses a majority of current models. What potential drawbacks might be associated with this model?**
+### Discussion Question: FlashAttention appears to be a versatile and valuable tool, especially when implemented on GPU-supported models, which encompasses a majority of current models. What potential drawbacks might be associated with this model?
 
 **Limitations:**
 CUDA Compilation: We need a new CUDA kernel for each variant of attention, requiring low-level programming and extensive engineering, which may not be consistent across GPU architectures. A high-level language for writing attention algorithms, translatable to IO-aware CUDA implementations, is needed.
