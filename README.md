@@ -8,7 +8,7 @@ Transformer models have become the predominant architecture in fields like natur
 
 The utilization of GPUs for machine learning training is a common practice, given their capability to handle parallel computations efficiently. This leads to an intriguing question: 
 
-### In the context of GPU-accelerated training, where exactly are all the matrices stored, and where does the training of the model actually take place?
+## In the context of GPU-accelerated training, where exactly are all the matrices stored, and where does the training of the model actually take place?
 
 ## Key Idea
 ### I/O in GPU
@@ -78,12 +78,14 @@ Benchmarking Attention: FlashAttention's memory footprint scales linearly with s
 
 ![图片_20231101033537](https://github.com/Racso777/FlashAttention/assets/111296013/f5696613-312e-4519-b68c-a90bcfc5fc1a)
 
-### Discussion Question: FlashAttention appears to be a versatile and valuable tool, especially when implemented on GPU-supported models, which encompasses a majority of current models. What potential drawbacks might be associated with this model?
+## Discussion Question: FlashAttention appears to be a versatile and valuable tool, especially when implemented on GPU-supported models, which encompasses a majority of current models. What potential drawbacks might be associated with this model?
 
-**Limitations:**
+## Limitations:
 CUDA Compilation: We need a new CUDA kernel for each variant of attention, requiring low-level programming and extensive engineering, which may not be consistent across GPU architectures. A high-level language for writing attention algorithms, translatable to IO-aware CUDA implementations, is needed.
 
 Multi-GPU IO-Aware Methods: While our attention implementation is nearly optimal for single-GPU use, extending and optimizing it for multi-GPU environments, including accounting for inter-GPU data transfers, represents an exciting area for future research.
+
+Sparsity: In utilizing block-sparse FlashAttention for longer sequences, the sparsity increases, leading to more blocks and information being excluded in the training process as a compromise for enhanced performance. Although this method results in increased speed, the trade-offs resulting from the masked blocks remain uncertain. The authors have not explored or discussed the potential impacts of excluding blocks in this technique.
 
 # Code Demonstration
 If we want to train a model using this approach, we could clone the repo and run the python file: https://github.com/Dao-AILab/flash-attention/tree/main/training/run.py
