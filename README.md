@@ -72,7 +72,7 @@ Benchmarking Attention: FlashAttention's memory footprint scales linearly with s
 ![图片_20231101024449](https://github.com/Racso777/FlashAttention/assets/111296013/7587d816-458f-40c2-b1d5-a2834cec51fd)
 
 
-**Discussion Question: ?**
+**Discussion Question: FlashAttention appears to be a versatile and valuable tool, especially when implemented on GPU-supported models, which encompasses a majority of current models. What potential drawbacks might be associated with this model?**
 
 **Limitations:**
 CUDA Compilation: We need a new CUDA kernel for each variant of attention, requiring low-level programming and extensive engineering, which may not be consistent across GPU architectures. A high-level language for writing attention algorithms, translatable to IO-aware CUDA implementations, is needed.
@@ -80,9 +80,7 @@ CUDA Compilation: We need a new CUDA kernel for each variant of attention, requi
 Multi-GPU IO-Aware Methods: While our attention implementation is nearly optimal for single-GPU use, extending and optimizing it for multi-GPU environments, including accounting for inter-GPU data transfers, represents an exciting area for future research.
 
 # Code Demonstration
-Since I don't have a GPU to work on and this paper is specifcally targeted improvement on GPU memory fine-grained control, I don't have a notebook that could demonstrate this approach.
-
-However, if we want to train a model using this approach, we could clone the repo and run the python file: https://github.com/Dao-AILab/flash-attention/tree/main/training/run.py
+If we want to train a model using this approach, we could clone the repo and run the python file: https://github.com/Dao-AILab/flash-attention/tree/main/training/run.py
 
 The test dataset that we could use and train is in this file: https://github.com/Dao-AILab/flash-attention/blob/main/training/tests/datamodules/test_language_modeling_hf.py
 
@@ -100,4 +98,11 @@ ELI5: FlashAttention: https://gordicaleksa.medium.com/eli5-flash-attention-5c440
 Huggingface: https://huggingface.co/docs/text-generation-inference/conceptual/flash_attention
 
 # Reference
+Dao, T., Fu, D. Y., Ermon, S., Rudra, A., & Ré, C. (2022). FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness. arXiv preprint arXiv:2205.14135.
+
+Gordić, A. (2022, July 18). ELI5: FlashAttention. Medium. https://gordicaleksa.medium.com/eli5-flash-attention-5c44017022ad
+
+Hugging Face. (2023). Flash Attention. Hugging Face Documentation. https://huggingface.co/docs/text-generation-inference/conceptual/flash_attention
+
+Tri Dao. (2023, January 1). FlashAttention - Tri Dao | Stanford MLSys #67. YouTube. https://www.youtube.com/watch?v=gMOAud7hZg4
 
