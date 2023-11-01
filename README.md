@@ -4,43 +4,41 @@ This repository contains overview, explanation, and examples of FlashAttention a
 Dao, T., Fu, D. Y., Ermon, S., Rudra, A., & Ré, C. (2022). FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness. arXiv preprint arXiv:2205.14135.
 
 # Introduction
-Transformer models have emerged as the most widely used architecture in applications such as natural language processing and image classification. Transformers have grown larger and deeper, but equipping them with longer context remains difficult, since the self-attention module at their heart
-has time and memory complexity quadratic in sequence length. 
+Transformer models have become the predominant architecture in fields like natural language processing and image classification, continually increasing in both size and depth. However, extending them to handle longer contextual information remains a challenge due to the quadratic time and memory complexity of the self-attention module, which is central to their structure.
 
-First question we should asked ourself is:
-**"When we are using GPU to train our model, where does all the matrix stored and where are they trained at?"**
+The utilization of GPUs for machine learning training is a common practice, given their capability to handle parallel computations efficiently. This leads to an intriguing question: 
+
+**In the context of GPU-accelerated training, where exactly are all the matrices stored, and where does the training of the model actually take place?**
 
 ## Key Idea
-### Compute-bound
-the time taken by the operation is determined by how many arithmetic operations there are, while time accessing HBM is much smaller. Typical examples are matrix multiply with large inner
-dimension, and convolution with large number of channels.
-### Memory-bound
-the time taken by the operation is determined by the number of memory accesses, while time spent in computation is much smaller. Examples include most other operations: elementwise (e.g., activation, dropout), and reduction (e.g., sum, softmax, batch norm, layer norm).
+### I/O in GPU
+Here we take A100 GPU as an example, it has 40-80GB of high bandwidth memory (HBM) with bandwidth 1.5-2.0TB/s and 192KB of on-chip SRAM per each of 108 streaming multiprocessors with bandwidth estimated around 19TB/s. The SRAM located on-chip operates at a speed that is an order of magnitude higher than that of HBM, yet it is significantly smaller in size by several orders of magnitude.
 
-### I/O awareness
-As an example, the A100 GPU has 40-80GB of high bandwidth memory (HBM) with bandwidth 1.5-2.0TB/s and 192KB of on-chip SRAM per each of 108 streaming multiprocessors with bandwidth estimated around 19TB/s [44, 45]. The on-chip
-SRAM is an order of magnitude faster than HBM but many orders of magnitude smaller in size.
+![图片_20231031235612](https://github.com/Racso777/FlashAttention/assets/111296013/3fdf2ae5-2972-4c6a-aff2-972296828b89)
+
+### Compute-bound
+For these tasks, the duration is primarily influenced by the volume of arithmetic calculations, with the HBM access time being substantially lesser. Common instances encompass executing matrix multiplication when there is an extensive inner dimension and performing convolutions with a considerable quantity of channels.
+
+### Memory-bound
+Here, the duration of the task is predominantly dictated by the frequency of memory retrievals, and the time consumed by arithmetic calculations is relatively minor. This category includes a wide range of operations such as elementwise functions (activation functions, dropout operations) and aggregation functions (summation, softmax, batch normalization, layer normalization).
 
 ### Kernel fusion
-The most common approach to accelerate memory-bound operations is kernel fusion: if there are multiple operations applied to the same input, the input can be loaded once from HBM, instead of
-multiple times for each operation.
+A common method to optimize memory-intensive operations is through kernel fusion, which involves consolidating multiple computational procedures into a single kernel. When numerous operations are to be performed on the same set of data, this approach allows for a one-time load of the data from the High Bandwidth Memory (HBM), rather than requiring separate loads for each distinct operation. This leads to more efficient memory usage and reduced operational time.
 
 # Paper Overview
-Our main goal is to avoid reading and writing the attention matrix to and from HBM.
-This requires (i) computing the softmax reduction without access to the whole input (ii) not storing the large
-intermediate attention matrix for the backward pass. We apply two well-established techniques to address
-these challenges. (i) We restructure the attention computation to split the input into blocks and make several
-passes over input blocks, thus incrementally performing the softmax reduction (also known as tiling). (ii) We
-store the softmax normalization factor from the forward pass to quickly recompute attention on-chip in the
-backward pass, which is faster than the standard approach of reading the intermediate attention matrix from
-HBM.
+The main goal of this paper is to avoid reading and writing the attention matrix to and from HBM.
+
+Requirement:
+1. Perform softmax reduction without full input access.
+2. Avoid storing large intermediate attention matrix for the backward pass, using two established methods.
+   
+Solution:
+1. Implement attention computation in blocks, using multiple passes for incremental softmax reduction (tiling).
+2. Preserve the softmax normalization factor from the forward pass to expedite on-chip attention recalculation in the backward pass, avoiding the slower retrieval of the intermediate attention matrix from HBM.
 
 ![图片_20231031205400](https://github.com/Racso777/FlashAttention/assets/111296013/242ba47d-cf27-4b6e-b732-0f92f72d46df)
 
-
-Even with the increased FLOPs due to recomputation,
-our algorithm both runs faster (up to 7.6x on GPT-2 [67], Figure 1 right) and uses less memory—linear
-in sequence length—than standard attention, thanks to the massively reduced amount of HBM access. 
+Despite necessitating additional FLOPs for the purpose of recomputation, the algorithm not only executes more swiftly—achieving up to a 7.6x speedup on GPT-2—but also consumes less memory, with its usage scaling linearly with sequence length. This efficiency is attributed to the substantially diminished need for accessing High Bandwidth Memory (HBM).
 
 ## Difference between normal approach and FlashAttention Pseudocode
 ### Standard Attention Algorithm 
@@ -50,43 +48,32 @@ in sequence length—than standard attention, thanks to the massively reduced am
 
 ![图片_20231031205015](https://github.com/Racso777/FlashAttention/assets/111296013/3a4e24df-f3fc-4dce-bad7-0e3036aea559)
 
-### Difference
-Standard attention implementations materialize the matrices S and P to HBM, which takes 𝑂(𝑁2) memory.
-
-
 ## Results
-- Datasets:
- 
-- Model Architectures:
+Training Speed: FlashAttention surpasses the MLPerf 1.1 speed record for BERT by 15%, triples GPT-2's speed compared to HuggingFace, and is 1.8 times faster than Megatron. It also accelerates the Long Range Arena (LRA) benchmark by 2.4 times.
 
-- Main Results:
+Quality: FlashAttention enhances Transformers' capability to process longer sequences, improving their quality. It trains GPT-2 with a 4K context length quicker and more effectively than Megatron does with a 1K context length, achieving a 0.7 improvement in perplexity. Longer sequences yield a 6.4 point improvement in long-document classification tasks. FlashAttention also excels in challenging tasks like Path-X (16K sequence length) and block-sparse FlashAttention shows promise in tasks like Path-256 (64K sequence length).
 
+Benchmarking Attention: FlashAttention's memory footprint scales linearly with sequence length, performing up to three times faster than standard attention for sequences up to 2K. Block-sparse FlashAttention’s runtime also scales linearly and outperforms all existing approximate attention methods.
 
 **Discussion Question: Are there specific applications or domains where you think LoRA might be less suitable, and why?**
 
 # Critical Analysis
 **Advantages:**
-- Drastically reduces number of trainable parameters compared to full fine-tuning. This enables fine-tuning huge models like GPT-3 with limited compute.
-
 
 **Limitations:**
-Compiling to CUDA. Our current approach to building IO-aware implementations of attention requires
-writing a new CUDA kernel for each new attention implementation. This requires writing the attention
-algorithm in a considerably lower-level language than PyTorch, and requires significant engineering effort.
-Implementations may also not be transferrable across GPU architectures. These limitations suggest the
-need for a method that supports writing attention algorithms in a high-level language (e.g., PyTorch), and
-compiling to IO-aware implementations in CUDA—similar to efforts such as Halide in image processing [70].
-IO-Aware Deep Learning. We believe that the IO-aware approach can extend beyond attention.
-Attention is the most memory-intensive computation in Transformers, but every layer in a deep network
-touches GPU HBM. We hope our work inspires IO-aware implementations of additional modules. We discuss
-these potential extensions in Appendix D.
-Multi-GPU IO-Aware Methods. Our IO-aware implementation of attention is optimal within constants for computing attention on a single GPU. However, the attention computation may be parallelizable
-across multiple GPUs [72]. Using multiple GPUs adds an additional layer to IO analysis—accounting for
-data transfer between GPUs. We hope our work inspires future work in this direction.
+CUDA Compilation: We need a new CUDA kernel for each variant of attention, requiring low-level programming and extensive engineering, which may not be consistent across GPU architectures. A high-level language for writing attention algorithms, translatable to IO-aware CUDA implementations, is needed.
 
+Multi-GPU IO-Aware Methods: While our attention implementation is nearly optimal for single-GPU use, extending and optimizing it for multi-GPU environments, including accounting for inter-GPU data transfers, represents an exciting area for future research.
 
 # Code Demonstration
 Since I don't have a GPU to work on and this paper is specifcally targeted improvement on GPU memory fine-grained control, I don't have a notebook that could demonstrate this approach.
-Please refer to https://github.com/Dao-AILab/flash-attention/tree/main this link for the official demonstration of FlashAttention.
+
+However, if we want to train a model using this approach, we could clone the repo and run the python file: https://github.com/Dao-AILab/flash-attention/tree/main/training/run.py
+
+The test dataset that we could use and train is in this file: https://github.com/Dao-AILab/flash-attention/blob/main/training/tests/datamodules/test_language_modeling_hf.py
+
+Please refer to https://github.com/Dao-AILab/flash-attention/tree/main for the official demonstration and the source code of FlashAttention.
+
+# More information on FlashAttention
 
 # Reference
