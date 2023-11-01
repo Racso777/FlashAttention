@@ -48,6 +48,9 @@ Despite necessitating additional FLOPs for the purpose of recomputation, the alg
 
 ![图片_20231031205015](https://github.com/Racso777/FlashAttention/assets/111296013/3a4e24df-f3fc-4dce-bad7-0e3036aea559)
 
+![图片_20231101024314](https://github.com/Racso777/FlashAttention/assets/111296013/183ed5ce-dc3e-4982-8fce-03c8bce74ce7)
+
+
 ## Block-Sparse FlashAttention Algorithm
 
 Given a predefined block sparsity mask M ∈ {0, 1}, we can easily adapt the flash attention algorithm to only compute the nonzero blocks of the attention matrix. The algorithm is identical, except we skip zero blocks. 
@@ -65,6 +68,9 @@ Training Speed: FlashAttention surpasses the MLPerf 1.1 speed record for BERT by
 Quality: FlashAttention enhances Transformers' capability to process longer sequences, improving their quality. It trains GPT-2 with a 4K context length quicker and more effectively than Megatron does with a 1K context length, achieving a 0.7 improvement in perplexity. Longer sequences yield a 6.4 point improvement in long-document classification tasks. FlashAttention also excels in challenging tasks like Path-X (16K sequence length) and block-sparse FlashAttention shows promise in tasks like Path-256 (64K sequence length).
 
 Benchmarking Attention: FlashAttention's memory footprint scales linearly with sequence length, performing up to three times faster than standard attention for sequences up to 2K. Block-sparse FlashAttention’s runtime also scales linearly and outperforms all existing approximate attention methods.
+
+![图片_20231101024449](https://github.com/Racso777/FlashAttention/assets/111296013/7587d816-458f-40c2-b1d5-a2834cec51fd)
+
 
 **Discussion Question: ?**
 
@@ -94,3 +100,4 @@ ELI5: FlashAttention: https://gordicaleksa.medium.com/eli5-flash-attention-5c440
 Huggingface: https://huggingface.co/docs/text-generation-inference/conceptual/flash_attention
 
 # Reference
+
